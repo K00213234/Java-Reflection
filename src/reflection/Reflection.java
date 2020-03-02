@@ -11,7 +11,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -33,7 +32,7 @@ public class Reflection
 	public static String main() throws FileNotFoundException, IOException, ClassNotFoundException
 	{
 		boolean data = true;
-		String text="";
+		String text = "";
 		try
 		{
 			Path path = Paths.get("assets.files/Objects2.dat");
@@ -53,13 +52,13 @@ public class Reflection
 					try
 					{
 						Object object = (Object) objectInputStream.readObject();
-						//object = (Object) new PrivateClass();
 
-						printName(object);
-						printFieldNames(object);
-						//showConstructors(object);
-						showMethods(object);
-						showValues(object);
+						text += printName(object)
+						+printFieldNames(object)
+						+showMethods(object)
+						+showValues(object);
+												//showConstructors(object);
+
 					} catch (EOFException end)
 					{
 						data = false;
@@ -75,7 +74,7 @@ public class Reflection
 		{
 
 		}
-		System.out.println(new File(".").getAbsolutePath());
+		//System.out.println(new File(".").getAbsolutePath());
 		return text;
 
 	}
@@ -99,47 +98,56 @@ public class Reflection
 //    fiis.close();
 //}
 
-	static void printName(Object object)
+	public static String printName(Object object)
 	{
+		String text = "";
 		Class class_ = object.getClass();
 		String name = class_.getName();
-		System.out.println(name);
+
+		text += name  + System.lineSeparator();
+
+		return text;
+
 	}
 
-	static void printFieldNames(Object object)
+	static String printFieldNames(Object object)
 	{
 		Class class_ = object.getClass();
+		String text = "";
+
 		for (Field field : class_.getFields())
 		{
 			int modifiers = field.getModifiers();
 			String type = field.getType().getName();
 			String name = field.getName();
 
-			System.out.println(Modifier.toString(modifiers) + " " + type + " " + name + ";");
+			text += (Modifier.toString(modifiers) + " " + type + " " + name + ";") + System.lineSeparator();
 		}
+		return text;
+
 	}
 
-	static void showConstructors(Object o)
+//	static void showConstructors(Object o)
+//	{
+//		Class FB = o.getClass();
+//		Constructor[] theConstructors = FB.getConstructors();
+//		for (int i = 0; i < theConstructors.length; i++)
+//		{
+//			System.out.print("(");
+//			Class[] parameterTypes = theConstructors[i].getParameterTypes();
+//			for (int k = 0; k < parameterTypes.length; k++)
+//			{
+//				String parameterString = parameterTypes[k].getName();
+//				parameterString += parameterTypes[k].toGenericString();
+//
+//				System.out.print(parameterString + "");
+//			}
+//			System.out.println(")");
+//		}
+//	}
+	static String showMethods(Object o)
 	{
-		Class FB = o.getClass();
-		Constructor[] theConstructors = FB.getConstructors();
-		for (int i = 0; i < theConstructors.length; i++)
-		{
-			System.out.print("(");
-			Class[] parameterTypes = theConstructors[i].getParameterTypes();
-			for (int k = 0; k < parameterTypes.length; k++)
-			{
-				String parameterString = parameterTypes[k].getName();
-				parameterString += parameterTypes[k].toGenericString();
-
-				System.out.print(parameterString + "");
-			}
-			System.out.println(")");
-		}
-	}
-
-	static void showMethods(Object o)
-	{
+		String text = "";
 		Class FB = o.getClass();
 		Method[] methods = FB.getMethods();
 		for (Method method : methods)
@@ -167,39 +175,44 @@ public class Reflection
 					//System.out.print(",  " + parameterString);
 				}
 			}
-			System.out.println(Modifier.toString(modifiers) + " " + returnString + " " + name + "(" + parameterString + ");");
+			text +=(Modifier.toString(modifiers) + " " + returnString + " " + name + "(" + parameterString + ");")  + System.lineSeparator();
 
 		}
+		return text;
 	}
 
-	static void showValues(Object o) throws IllegalArgumentException
+	static String showValues(Object o) throws IllegalArgumentException
 	{
+		String text = "";
 		Class class_ = o.getClass();
 		Field[] publicFields = class_.getDeclaredFields();
 		for (Field field : publicFields)
 		{
 
-			showValue(field, o);
+			text+=showValue(field, o);
 		}
-		for (Method method : class_.getMethods())
-		{
-			//showValue(method);
-		}
+		return text;
+//		for (Method method : class_.getMethods())
+//		{
+//			//showValue(method);
+//		}
 	}
 
-	private static void showValue(Field field, Object object) throws SecurityException, IllegalArgumentException
+	 static String showValue(Field field, Object object) throws SecurityException, IllegalArgumentException
 	{
+		String text = "";
 		try
 		{
 			field.setAccessible(true);
 
 			Object value = field.get(object);
-			System.out.println(value.toString());
+			text +=(value.toString()) + System.lineSeparator();
 
 		} catch (IllegalAccessException ex)
 		{
 			Logger.getLogger(Reflection.class.getName()).log(Level.SEVERE, null, ex);
 		}
+		return text;
 
 		// System.out.println("Field Name: "+ fieldName + ", Type: " + fieldValue);
 	}
@@ -219,12 +232,4 @@ public class Reflection
 //		{
 //			Logger.getLogger(Reflection.class.getName()).log(Level.SEVERE, null, ex);
 //		}
-}
-
-class PrivateClass
-{
-
-	private int privateField = 0;
-	public int publicField = 0;
-	protected int protectedField = 0;
 }
